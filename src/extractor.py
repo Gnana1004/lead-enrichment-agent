@@ -83,18 +83,33 @@ def _estimate_cost(
 # ---------------------------------------------------------------------
 
 def _normalize_text(text: str) -> str:
-    """Normalize whitespace while preserving readable text."""
+    """Normalize whitespace and common encoding/markdown artifacts."""
 
+    # Fix common UTF-8/Windows-1252 mojibake.
+    replacements = {
+        "â€™": "'",
+        "â€˜": "'",
+        "â€œ": '"',
+        "â€": '"',
+        "â€”": "-",
+        "â€“": "-",
+        "â€": "",
+        "Â®": "®",
+        "Â©": "©",
+        "Â·": "·",
+        "\\\\": "\\",
+        "\\-": "-",
+        "partof": "part of",
+    }
+
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+
+    # Remove literal escaped newlines.
     text = text.replace("\\n", " ")
-    text = re.sub(r"\s+", " ", text)
 
-    # Fix common markdown conversion artifacts.
-    text = re.sub(
-        r"\bpartof\b",
-        "part of",
-        text,
-        flags=re.IGNORECASE,
-    )
+    # Normalize whitespace.
+    text = re.sub(r"\s+", " ", text)
 
     return text.strip()
 
@@ -183,14 +198,51 @@ def _is_bad_overview_line(
         "book a demo",
         "get started",
         "request a demo",
-        "vapicon is back",
+        "faq",
+        "frequently asked questions",
+        "what's the difference",
+        "what is the difference",
+        "how much do i pay",
+        "what exactly",
+        "how is the",
+        "pricing",
+        "per-minute",
+        "per minute",
+        "success package",
+        "pro package",
         "vapiCon is back".lower(),
     ]
 
-    return any(
+    if any(
         phrase in lower
         for phrase in blocked_phrases
+    ):
+        return True
+
+    # FAQ-like questions are not company descriptions.
+    if "?" in line:
+        return True
+
+    # Lines containing many question-like fragments are usually
+    # navigation or FAQ content.
+    question_words = [
+        "what ",
+        "how ",
+        "why ",
+        "when ",
+        "where ",
+        "which ",
+    ]
+
+    question_count = sum(
+        lower.count(word)
+        for word in question_words
     )
+
+    if question_count >= 2:
+        return True
+
+    return False
 
 
 def _looks_like_company_description(
@@ -231,6 +283,11 @@ def _looks_like_company_description(
         "database platform",
         "voice ai",
         "artificial intelligence",
+        "real-time voice",
+        "real time voice",
+        "developer platform",
+        "open source",
+        "backend",
     ]
 
     return any(
@@ -239,6 +296,75 @@ def _looks_like_company_description(
     )
 
 
+def _is_strong_overview_candidate(line: str) -> bool:
+    """
+    Apply stricter checks to avoid selecting pricing, FAQ,
+    navigation, testimonial, or marketing fragments.
+    """
+
+    lower = line.lower()
+
+    if _is_bad_overview_line(line):
+        return False
+
+    if len(line) < 45:
+        return False
+
+    if len(line) > 500:
+        return False
+
+    # Too many separators usually means several UI/navigation
+    # elements were concatenated into one line.
+    if line.count("|") >= 2:
+        return False
+
+    # Markdown/UI artifacts.
+    if any(marker in line for marker in ["# ", "## ", "### ", "!["]):
+        return False
+
+    # Links or escaped markdown fragments.
+    if "http://" in lower or "https://" in lower:
+        return False
+
+    # Common CTA / navigation fragments.
+    ui_terms = [
+        "explore ",
+        "apply to ",
+        "join ",
+        "register ",
+        "download ",
+        "watch ",
+        "read more",
+        "view ",
+        "discover ",
+        "integration",
+        "built in a weekend",
+        "scale to millions",
+    ]
+
+    if sum(term in lower for term in ui_terms) >= 2:
+        return False
+
+    # Pricing/cost content is rarely the main company description.
+    pricing_terms = [
+        "price",
+        "pricing",
+        "cost",
+        "per minute",
+        "per-minute",
+        "package",
+        "billing",
+        "usage",
+    ]
+
+    if sum(term in lower for term in pricing_terms) >= 2:
+        return False
+
+    # Reject obvious concatenated fragments.
+    if re.search(r"[.!?]\S", line):
+        return False
+
+    return True
 def _extract_mock_overview(
     cleaned_markdown: str,
     domain: str,
@@ -258,14 +384,12 @@ def _extract_mock_overview(
     candidates: list[str] = []
 
     for raw_line in raw_lines:
-        line = _clean_candidate_text(
-            raw_line
-        )
+        line = _clean_candidate_text(raw_line)
 
         if not line:
             continue
 
-        if _is_bad_overview_line(line):
+        if not _is_strong_overview_candidate(line):
             continue
 
         if line.startswith("!["):
@@ -277,18 +401,10 @@ def _extract_mock_overview(
         ):
             continue
 
-        # Ignore short headings/navigation.
-        if len(line) < 70:
-            continue
-
-        # Extremely long lines are usually concatenated navigation.
-        if len(line) > 700:
-            continue
-
         if _looks_like_company_description(line):
             candidates.append(line)
 
-    # Remove duplicate candidates.
+    # Remove duplicates.
     unique_candidates: list[str] = []
 
     for candidate in candidates:
@@ -298,22 +414,20 @@ def _extract_mock_overview(
         ):
             unique_candidates.append(candidate)
 
-    # Fallback when no explicit description pattern was found.
+    # Fallback: use reasonably sized descriptive lines while still
+    # rejecting obvious navigation and FAQ content.
     if not unique_candidates:
         for raw_line in raw_lines:
-            line = _clean_candidate_text(
-                raw_line
-            )
+            line = _clean_candidate_text(raw_line)
 
             if (
-                len(line) >= 100
-                and len(line) <= 500
-                and not _is_bad_overview_line(line)
+                80 <= len(line) <= 350
+                and _is_strong_overview_candidate(line)
             ):
                 unique_candidates.append(line)
 
-                if len(unique_candidates) == 2:
-                    break
+            if len(unique_candidates) == 2:
+                break
 
     if not unique_candidates:
         return (
@@ -332,9 +446,10 @@ def _extract_mock_overview(
     )
 
     if len(sentences) > 2:
-        overview = " ".join(
-            sentences[:2]
-        )
+        overview = " ".join(sentences[:2])
+
+    # Remove accidental repeated whitespace/encoding artifacts.
+    overview = _normalize_text(overview)
 
     return overview.strip()
 
@@ -348,9 +463,7 @@ def _extract_mock_target_audience(
 ) -> str:
     """Extract likely target-audience references."""
 
-    text = _normalize_text(
-        cleaned_markdown
-    )
+    text = _normalize_text(cleaned_markdown)
 
     audience_patterns = [
         (
@@ -445,9 +558,7 @@ def _clean_person_name(
 ) -> str:
     """Clean a captured person's name."""
 
-    name = _normalize_text(
-        name
-    )
+    name = _normalize_text(name)
 
     # Remove common testimonial/customer company suffixes.
     name = re.sub(
@@ -457,11 +568,9 @@ def _clean_person_name(
         flags=re.IGNORECASE,
     )
 
-    name = name.strip(
-        " \t\n\r,.;:-—–"
+    return name.strip(
+        " \t\n\r,.;:-"
     )
-
-    return name
 
 
 def _clean_role(
@@ -469,15 +578,13 @@ def _clean_role(
 ) -> str:
     """Normalize a leadership role."""
 
-    role = _normalize_text(
-        role
-    )
+    role = _normalize_text(role)
 
     if role.lower() == "co-founder":
         return "Co-founder"
 
     return role.strip(
-        " \t\n\r,.;:-—–"
+        " \t\n\r,.;:-"
     )
 
 
@@ -488,13 +595,8 @@ def _add_leadership_member(
 ) -> None:
     """Add a valid leadership member if not already present."""
 
-    name = _clean_person_name(
-        name
-    )
-
-    role = _clean_role(
-        role
-    )
+    name = _clean_person_name(name)
+    role = _clean_role(role)
 
     if not name or not role:
         return
@@ -503,22 +605,15 @@ def _add_leadership_member(
     if len(name.split()) < 2:
         return
 
-    # Reject fragments accidentally captured from phrases such as
-    # "CEO and co-founder".
-    if name.lower() in {
+    if len(name) > 60:
+        return
+
+    blocked_names = {
         "and co",
         "and co founder",
         "and co-founder",
         "co founder",
         "co-founder",
-    }:
-        return
-
-    if len(name) > 60:
-        return
-
-    # Reject obvious navigation/UI phrases.
-    blocked_names = {
         "learn more",
         "contact sales",
         "contact us",
@@ -533,7 +628,7 @@ def _add_leadership_member(
     if name.lower() in blocked_names:
         return
 
-    # Reject names containing obvious sentence fragments.
+    # Reject obvious sentence fragments.
     if any(
         phrase in name.lower()
         for phrase in [
@@ -585,15 +680,10 @@ def _extract_mock_leadership(
         r"Co-Founder"
     )
 
-    # ---------------------------------------------------------------
-    # Pattern 1
-    #
-    # Examples:
+    # Pattern 1:
     # "Abhinav Asthana, Postman's CEO and co-founder"
     # "Jane Doe, CEO"
     # "Jane Doe, Founder"
-    # ---------------------------------------------------------------
-
     pattern_1 = (
         r"\b("
         r"[A-Z][A-Za-z'-]+"
@@ -626,15 +716,10 @@ def _extract_mock_leadership(
             role,
         )
 
-    # ---------------------------------------------------------------
-    # Pattern 2
-    #
-    # Examples:
+    # Pattern 2:
     # "Jane Doe — CEO"
     # "Jane Doe - Founder"
     # "Jane Doe: CTO"
-    # ---------------------------------------------------------------
-
     pattern_2 = (
         r"\b("
         r"[A-Z][A-Za-z'-]+"
@@ -657,14 +742,9 @@ def _extract_mock_leadership(
             match.group(2),
         )
 
-    # ---------------------------------------------------------------
-    # Pattern 3
-    #
-    # Examples:
+    # Pattern 3:
     # "CEO Jane Doe"
     # "Founder Jane Doe"
-    # ---------------------------------------------------------------
-
     pattern_3 = (
         r"\b("
         + role_terms

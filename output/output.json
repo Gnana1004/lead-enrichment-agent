@@ -17,13 +17,12 @@
         "accommodations@postman.com",
         "help@postman.com",
         "info-jp@postman.com",
-        "info@postman.com",
-        "jp@postman.com"
+        "info@postman.com"
       ],
       "key_leadership": [
         {
           "name": "Abhinav Asthana",
-          "role": "CEO",
+          "role": "CEO and Co-founder",
           "linkedin_url": null
         }
       ],
@@ -44,18 +43,28 @@
     ],
     "error": null,
     "data": {
-      "company_overview": "You want to validate your ideas quickly without having to build a complete backend infrastructure from scratch. At the same time, you want to be able to use the Postgres database you’re familiar with and connect to resources in your organization.",
+      "company_overview": "Powering millions of AI-generated apps with a complete Supabase backend. Every major AI builder integrates with Supabase by default.",
       "target_audience": "The website references developers, enterprise organizations, and companies as part of its target audience.",
       "contact_points": [
         "abuse@supabase.com",
-        "events@supabase.com",
         "help-events@supabase.com",
         "legal@supabase.com",
         "privacy@supabase.com",
         "security@supabase.com"
       ],
-      "key_leadership": [],
-      "data_confidence_score": 0.85
+      "key_leadership": [
+        {
+          "name": "Jakob Steinn",
+          "role": "Co-founder and Co-founder",
+          "linkedin_url": null
+        },
+        {
+          "name": "Jakob Steinn Co",
+          "role": "founder",
+          "linkedin_url": null
+        }
+      ],
+      "data_confidence_score": 0.95
     },
     "tokens_used": 0,
     "estimated_cost_usd": 0.0
@@ -70,7 +79,7 @@
     ],
     "error": null,
     "data": {
-      "company_overview": "Orchestration, real\\\\\\-time monitoring, and enterprise\\\\\\-grade configurability built for scale. What's the difference between what I pay for usage and what I pay for a success package?What exactly is in the per\\\\\\-minute cost?How is the Pro package price calculated?What does “organizations” mean?What are add\\\\\\-ons, and can I use them on any package?How do compliance and data controls work?What does support include on Pro and Premier?Who should I talk to about whether Pro or Premier is the right fit?\\#\\# Own your voice agents.",
+      "company_overview": "Orchestration, real-time monitoring, and enterprise-grade configurability built for scale. Build agents that meet the standards your business runs on.",
       "target_audience": "The website references enterprise organizations as part of its target audience.",
       "contact_points": [
         "Talent@vapi.ai"
