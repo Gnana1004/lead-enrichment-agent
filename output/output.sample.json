@@ -1,0 +1,50 @@
+[
+  {
+    "domain": "postman.com",
+    "status": "success",
+    "pages_crawled": [
+      "https://postman.com",
+      "https://postman.com/company/",
+      "https://postman.com/pricing/"
+    ],
+    "error": null,
+    "data": {
+      "company_overview": "Postman is a collaboration platform for API development that lets teams design, test, document, and monitor APIs throughout their lifecycle. It is widely used by developers to streamline building and consuming APIs.",
+      "target_audience": "Software developers and API teams building, testing, and managing REST, GraphQL, and other APIs.",
+      "contact_points": ["support@postman.com"],
+      "key_leadership": [
+        {"name": "Abhinav Asthana", "role": "CEO & Co-founder", "linkedin_url": null}
+      ],
+      "data_confidence_score": 0.8
+    },
+    "tokens_used": 5120,
+    "estimated_cost_usd": 0.0219
+  },
+  {
+    "domain": "supabase.com",
+    "status": "success",
+    "pages_crawled": [
+      "https://supabase.com",
+      "https://supabase.com/pricing"
+    ],
+    "error": null,
+    "data": {
+      "company_overview": "Supabase is an open-source Firebase alternative that provides a Postgres database, authentication, instant APIs, edge functions, and storage for developers building applications. It positions itself as a backend-as-a-service built on open-source tools.",
+      "target_audience": "Developers building web and mobile applications who need a managed backend without vendor lock-in.",
+      "contact_points": [],
+      "key_leadership": [],
+      "data_confidence_score": 0.55
+    },
+    "tokens_used": 3890,
+    "estimated_cost_usd": 0.0164
+  },
+  {
+    "domain": "vapi.ai",
+    "status": "failed",
+    "pages_crawled": [],
+    "error": "Homepage failed for vapi.ai: Timeout 15000ms exceeded",
+    "data": null,
+    "tokens_used": null,
+    "estimated_cost_usd": null
+  }
+]

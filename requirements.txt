@@ -1,0 +1,7 @@
+playwright==1.47.0
+beautifulsoup4==4.12.3
+markdownify==0.13.1
+anthropic==0.34.2
+pydantic==2.9.2
+python-dotenv==1.0.1
+tiktoken==0.7.0

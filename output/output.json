@@ -1,0 +1,84 @@
+[
+  {
+    "domain": "postman.com",
+    "status": "success",
+    "pages_crawled": [
+      "https://postman.com/",
+      "https://postman.com/company/about-postman/",
+      "https://www.postman.com/company/contact-sales/",
+      "https://postman.com/company/contact-us/",
+      "https://postman.com/company/careers/"
+    ],
+    "error": null,
+    "data": {
+      "company_overview": "Develop, test, manage, and distribute APIs and services. Built for engineers.",
+      "target_audience": "The website references developers, enterprise organizations, and companies as part of its target audience.",
+      "contact_points": [
+        "accommodations@postman.com",
+        "help@postman.com",
+        "info-jp@postman.com",
+        "info@postman.com",
+        "jp@postman.com"
+      ],
+      "key_leadership": [
+        {
+          "name": "Abhinav Asthana",
+          "role": "CEO",
+          "linkedin_url": null
+        }
+      ],
+      "data_confidence_score": 0.95
+    },
+    "tokens_used": 0,
+    "estimated_cost_usd": 0.0
+  },
+  {
+    "domain": "supabase.com",
+    "status": "success",
+    "pages_crawled": [
+      "https://supabase.com/",
+      "https://supabase.com/solutions/innovation-teams",
+      "https://supabase.com/company",
+      "https://supabase.com/contact-us",
+      "https://supabase.com/contact/sales"
+    ],
+    "error": null,
+    "data": {
+      "company_overview": "You want to validate your ideas quickly without having to build a complete backend infrastructure from scratch. At the same time, you want to be able to use the Postgres database you’re familiar with and connect to resources in your organization.",
+      "target_audience": "The website references developers, enterprise organizations, and companies as part of its target audience.",
+      "contact_points": [
+        "abuse@supabase.com",
+        "events@supabase.com",
+        "help-events@supabase.com",
+        "legal@supabase.com",
+        "privacy@supabase.com",
+        "security@supabase.com"
+      ],
+      "key_leadership": [],
+      "data_confidence_score": 0.85
+    },
+    "tokens_used": 0,
+    "estimated_cost_usd": 0.0
+  },
+  {
+    "domain": "vapi.ai",
+    "status": "success",
+    "pages_crawled": [
+      "https://vapi.ai/",
+      "https://vapi.ai/pricing",
+      "https://vapi.ai/careers"
+    ],
+    "error": null,
+    "data": {
+      "company_overview": "Orchestration, real\\\\\\-time monitoring, and enterprise\\\\\\-grade configurability built for scale. What's the difference between what I pay for usage and what I pay for a success package?What exactly is in the per\\\\\\-minute cost?How is the Pro package price calculated?What does “organizations” mean?What are add\\\\\\-ons, and can I use them on any package?How do compliance and data controls work?What does support include on Pro and Premier?Who should I talk to about whether Pro or Premier is the right fit?\\#\\# Own your voice agents.",
+      "target_audience": "The website references enterprise organizations as part of its target audience.",
+      "contact_points": [
+        "Talent@vapi.ai"
+      ],
+      "key_leadership": [],
+      "data_confidence_score": 0.85
+    },
+    "tokens_used": 0,
+    "estimated_cost_usd": 0.0
+  }
+]
